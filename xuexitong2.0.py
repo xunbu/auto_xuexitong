@@ -121,8 +121,8 @@ def choosehandle(wd,title:str):
 
 
 if __name__=='__main__':
-    #try:
-    main()
-    #except:
-    #    print('程序已结束。若要再次使用，请关闭该浏览器窗口并重启程序')
+    try:
+        main()
+    except:
+        print('程序已结束。若要再次使用，请关闭该浏览器窗口并重启程序')
 
