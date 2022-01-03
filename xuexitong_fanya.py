@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import NoSuchElementException
 import os
 import time
-
+##V1.1
 datapath=os.path.abspath('./userdata')
 if not os.path.exists(datapath):
     os.makedirs(datapath)
@@ -17,8 +17,8 @@ wd.implicitly_wait(10)
 wd.maximize_window()
 
 def main():
-    wd.get("http://passport2.chaoxing.com/login?fid=&refer=http://i.mooc.chaoxing.com")
-    coursewebsite=input('请输入完整的课程网址(可用鼠标右键复制):')
+    wd.get("https://i.chaoxing.com/")
+    coursewebsite=input('请输入完整的课程网址(用鼠标右键粘贴):')
     wd.get(coursewebsite)
     zhangjie=wd.find_element(By.XPATH,"//*[@dataname='zj']")
     wd.execute_script("arguments[0].click();",zhangjie)
@@ -53,7 +53,7 @@ def main():
             un_cellindex.append(i)
     print('目录已获取完成')
     print('un_cellindex',un_cellindex)
-    wd.implicitly_wait(10)
+    wd.implicitly_wait(5)
     #################################################
     for i,list_index in enumerate(un_cellindex):
         print('i:',i,'index:',list_index)
@@ -99,12 +99,29 @@ def watchvideo():
         while 1:
             finishflag=videoframelist[index].find_element(By.XPATH,"./..").get_attribute('class')
             if finishflag=='ans-attach-ct':
-                print('视频未完成，等待十秒')
-                time.sleep(10)
+                ifstop(videoframelist,index)
+                print('视频未完成，等待三秒')
+                time.sleep(3)
             else:
                 print('视频已完成')
                 break
 
+def ifstop(videoframelist,index):
+    #检测视频是否停止，若停止则打开视频
+    #在第一层iframe使用（即视频iframe的上一层）
+    wd.implicitly_wait(0.1)
+    wd.switch_to.frame(videoframelist[index])
+    try:
+        startbutton2=wd.find_element(By.XPATH,"//*[@class='vjs-play-control vjs-control vjs-button vjs-paused']")
+    except:
+        print('视频正常播放')
+    else:
+        print("视频暂停，正在恢复播放")
+        startbutton2.click()
+        print("已恢复播放")
+    wd.switch_to.parent_frame()
+    wd.implicitly_wait(5)
+    #ActionChains(wd).move_to_element(wd.find_element(By.XPATH,"//iframe")).perform()
 def choosehandle(wd,title:str):
     for handle in wd.window_handles:
         # 先切换到该窗口
