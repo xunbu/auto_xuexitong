@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import NoSuchElementException
 import os
 import time
-##V1.1
+##V1.1.2
 datapath=os.path.abspath('./userdata')
 if not os.path.exists(datapath):
     os.makedirs(datapath)
@@ -43,14 +43,17 @@ def main():
     un_cellindex=[]
     print('正在读取目录，请稍等')
     time.sleep(4)
-    wd.implicitly_wait(0.1)
+    wd.implicitly_wait(0.02)
     for i in range(ncellnumber):
         try:
+            print('i',i)
             ncelllist[i].find_element(By.XPATH,".//*[@class='orangeNew']")
         except NoSuchElementException:
             continue
         else:
             un_cellindex.append(i)
+        time.sleep(0.02)#节数太多则需要重新获取ncellist
+        ncelllist = wd.find_elements(By.XPATH,"//*[@class='posCatalog_select' or @class='posCatalog_select posCatalog_active']")
     print('目录已获取完成')
     print('un_cellindex',un_cellindex)
     wd.implicitly_wait(5)
@@ -78,10 +81,15 @@ def watchvideo():
     print('未完成任务数：', un_tasknumber)
     ##进入第一层iframe
     wd.switch_to.frame(wd.find_element(By.XPATH, "//iframe"))
+    wd.implicitly_wait(2)
     # 生成视频iframe列表对象（有allowfullscreen属性的视为视频iframe）
     videoframelist = wd.find_elements(By.XPATH, "//*[@class='ans-attach-ct']//iframe[@allowfullscreen]")
     videonumber = len(videoframelist)
     print('视频数', videonumber)
+    if videonumber==0:
+        print('本节所有视频已完成')
+        return 1
+    wd.implicitly_wait(5)
     #未完成的视频的index(假设所有视频都是从上看到下）
     un_videoindex=list(range(0,videonumber))
     print('un_videoindex',un_videoindex)
@@ -121,7 +129,6 @@ def ifstop(videoframelist,index):
         print("已恢复播放")
     wd.switch_to.parent_frame()
     wd.implicitly_wait(5)
-    #ActionChains(wd).move_to_element(wd.find_element(By.XPATH,"//iframe")).perform()
 def choosehandle(wd,title:str):
     for handle in wd.window_handles:
         # 先切换到该窗口
